@@ -6,12 +6,18 @@ FROM balenalib/armv7hf-debian:buster-20191223 as builder
 #environment variables
 ENV BLUEZ_VERSION 5.54
 
+#build essentials
 RUN apt-get update && apt-get install -y \
-    build-essential wget \
+    build-essential curl \
     libical-dev libdbus-1-dev libglib2.0-dev libreadline-dev libudev-dev systemd
 
-RUN wget -P /tmp/ https://www.kernel.org/pub/linux/bluetooth/bluez-${BLUEZ_VERSION}.tar.gz \
+#ca certificates (otherwise wget below will fail)
+RUN apt-get install -y ca-certificates
+
+#download bluez source
+RUN curl -L -o /tmp/bluez-${BLUEZ_VERSION}.tar.gz https://www.kernel.org/pub/linux/bluetooth/bluez-${BLUEZ_VERSION}.tar.gz \
  && tar xf /tmp/bluez-${BLUEZ_VERSION}.tar.gz -C /tmp \
+
 #compile bluez
  && cd /tmp/bluez-${BLUEZ_VERSION} \
  && ./configure --prefix=/usr \
